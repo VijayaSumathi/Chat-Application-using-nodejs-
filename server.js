@@ -240,10 +240,7 @@ io.on( 'connection', function( socket ) {
                 delete socket.handshake.session.userdata;
                 socket.handshake.session.save();
             }
-        });    
-
-
-
+        });
     }
     socket.on('disconnect',function(data)
    {

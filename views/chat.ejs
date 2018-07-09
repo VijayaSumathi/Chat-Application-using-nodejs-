@@ -1,0 +1,117 @@
+<html>
+
+<head>
+
+    <title>
+
+        Chat with socket.io+nodejs+express
+
+    </title>
+
+    <style>
+
+        body{
+
+            background-color:lightgray;
+
+        }
+		#contentwrap{
+			display: none;
+		}
+		#msgBox{
+		height: 200px;
+		 width: 400px;
+		  border: 1px solid blue;
+		}
+
+
+</style>
+
+ 
+</head>
+<body> 
+		<p id="username"></p> <br/>
+	<p>list of all other users are</p>
+		<div id="allusers"></div>
+	<br/><br/>
+	<p>sjdaksjdj</p>
+	<div id="msg_head"></div>
+
+    <p id="hello"></p>
+
+		    <br/>
+		
+				<div id="status"></div>
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/2.1.4/jquery.min.js"></script>
+	<script src="/socket.io/socket.io.js"></script>
+	<script>
+		$(function(){//shorthand for document.ready
+			var socket=io.connect();
+			var $username=$('#username');
+            var username;
+
+			var $msg_head=$('#msg_head');
+			var $nickerror=$('#nicknameerror');
+			var $hello=$('#hello');
+			var $messageform=$('#sendmessage');
+			var $messageip=$('#message');
+			var $chat=$('#chat');			
+			var $allusers=$('#allusers');
+			var $button=$('#button');
+			var friend;			
+			socket.on('handle',function(data){
+			  console.log(data);
+			  username=data;
+			  $username.append('<p>'+data+'</p>');
+			  socket.emit('login',data)
+			  
+			});
+			
+			
+			            
+			
+			
+            
+             
+				
+			socket.on('friend_list', function(data) {
+					console.log("Friends list : "+data);
+			
+					var str=' ';
+					for(var i=0 ;i<data.length;i++)
+					{
+						str+='<button id="button" name="username" value="'+data[i]+'" >'+ data[i] +'</button>&nbsp'
+						
+					}
+					$allusers.html(str);  
+					
+					$('button').click(function () {
+						 friend= $(this).val();
+						 console.log("-->"+friend)
+						 $msg_head.append('<p>'+friend+'</p>');
+						 $msg_head.append("<div id=msgBox></div><input type=text id=msg style=width:300px/> <input type=submit id=send value=send />");
+						 
+						 $("#send").click(function () {
+                           //send to the server with person name and message
+                           socket.emit("clientMsg", {
+					           "name": username,
+								"msg": $("#msg").val(),
+								"friend":friend
+                            });
+						  });
+						  socket.on("serverMsg", function (data) {
+             							   //Append the message from the server to the message box
+              					  $("#msgBox").append("<strong>" + data.name + 
+              					  "</strong>: " + data.msg + "<br/>");
+           					 });
+						 
+						});                  
+										              
+			});
+		   
+		  
+
+		});
+	</script>
+</body>
+</html>

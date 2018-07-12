@@ -6,7 +6,7 @@ const mongoose = require('mongoose');
 mongoose.Promise = global.Promise;
 var register = require('./models/register');
 var login = require('./models/login');
-var online = require('./models/online');var path = require('path');
+var messages = require('./models/messages');var path = require('path');
 var bodyParser = require('body-parser');
 //var url  = require('url');
 router.use(bodyParser.urlencoded({ extended: false }))
@@ -87,7 +87,9 @@ router.get('/', function(req, res, next) {
   });
 
   /* registration */
-
+  router.get('/logout', function(req, res, next) {
+    res.render('login');
+  });
 
 router.get('/registration',function(req,res){
     res.render('registration');
@@ -134,11 +136,11 @@ router.post('/login',function(req,res){
       }
       else
       {   
-        register.update({"status":"online"},function(err,doc){
+        register.update({"name":req.body.name},{"status":"online"},function(err,doc){
             if(err) res.json(err);
             else{
-                console.log("updated successfully")
-               
+                console.log("updated status successfully")
+                 
             }
         });
         console.log("register success");
@@ -181,27 +183,75 @@ var users={};
 var keys={};
 var people={};
 
-io.on( 'connection', function( socket ) {
+io.on( 'connection', function( socket ) {-
   console.log( 'New user connected' );
-  console.log("Connection :User is connected  "+handle);
-  console.log("Socket ID  : " +socket.id);
-  
-  
-
-  people[handle] =  socket.id;
+  socket.handshake.session.name=handle;
+  socket.handshake.session.save();
+   console.log(socket.handshake.session.userdata);
+  console.log("Socket ID  : " +socket.id);   
+   //users[socket.id]=handle;
+  // console.log("Connection :User is connected  "+users[socket.id]);
+   people[handle] =  socket.id;
   if(handle===null){
-
+      
   }
   else{
-  io.to(socket.id).emit('handle', handle);
+  io.to(socket.id).emit('handle',  socket.handshake.session.name );
 
   socket.on( 'disconnect', function() {
     console.log( 'User disconnected' );
+    register.update({"name":handle},{"status":"offline"},function(err,doc){
+        if(err) res.json(err);
+        else{
+            console.log("updated status successfully")
+             
+        }
+    });
     });
 
+  socket.on('chatusername',function(data){
+
+
+   // old mesages
+   messages.find({"sender":data.name,"reciever":data.friend},function(err,doc){ 
+       
+    console.log("the messages are\n\n"+doc+"\n\nmessage end here\n\n")
+    if(err) throw err;
+
+    for(var i in doc){
+    socket.emit('old:messages',{'message':doc[i].message,'reciever':doc[i].reciever})
+         //console.log(doc[i].sender);
+    }
+   });  
+});
+
+   
+
+
     socket.on("clientMsg", function (data) {
-        //send the data to the current client requested/sent.
+        //send the data to the current client requested/sent.       
+
+
        console.log("friend is ----->"+data.friend);
+       const chatmessage = new messages({
+        message:data.msg ,
+        sender:handle,
+        reciever:data.friend 
+       });
+       chatmessage.save()
+        .then(data => {
+                        console.log("chat message stored");
+                     })
+       .catch(err => {
+                        return res.status(500).send({
+                            message: err.message || "Some error occurred ."
+                        });
+                        console.log("error");
+         });
+
+      
+        
+        
         io.to(people[data.friend]).emit('serverMsg', data);
         io.to(socket.id).emit('serverMsg', data);
         //send the data to all the clients who are accessing the same site(localhost)
@@ -212,9 +262,10 @@ io.on( 'connection', function( socket ) {
         register.find({},function(err,doc){      // send all users to client side 
             if(err) throw err;
             var allusers=[];
+            var statusOfUser=[];
             if(doc==null)
             {
-
+                
             }
             else
             {     
@@ -222,35 +273,19 @@ io.on( 'connection', function( socket ) {
                 if(doc[i].name!=handle){               
                     console.log("the users are"+doc[i].name+"\t\t"+doc[i].email);
                     allusers.push(doc[i].name);
-                }					
-            }       
-            io.to(socket.id).emit('friend_list', allusers);
-          }
-         
+                   // statusOfUser.push(doc[i].status);                    
+                }		               		
+            }     
+            io.to(socket.id).emit('friend_list',allusers);//{ "allusers": allusers,"status":statusOfUser});	        
+          }       
 
         });
 
-        socket.on("login", function(userdata) {
-            console.log("--> login"+userdata);
-            socket.handshake.session.userdata = userdata;
-            socket.handshake.session.save();
-        });
-        socket.on("logout", function(userdata) {
-            if (socket.handshake.session.userdata) {
-                delete socket.handshake.session.userdata;
-                socket.handshake.session.save();
-            }
-        });
+        
     }
     socket.on('disconnect',function(data)
    {
-    register.update({"status":"offline"},function(err,doc){
-        if(err) res.json(err);
-        else{
-            console.log("updated successfully")
-           
-        }
-    });
+       console.log("user diconnected"+handle)
 });
 
     });   // socket end

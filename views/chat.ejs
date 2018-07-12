@@ -6,14 +6,14 @@
         Chat with socket.io+nodejs+express
     </title>
     <style>
-		
-.bg-primary {
-    color: #fff;
-    background-color: #337ab7;
-}#logout{
+		#username{
 		float:right;
 		margin-right:20px;
 	}
+.bg-primary {
+    color: #fff;
+    background-color: #337ab7;
+}
 	.navbar {
     position: relative;
     min-height: 50px;
@@ -77,18 +77,6 @@ margin-right: 778px;
 a{
 	display: block;
 	color: white;
-}#msg{
-	width:354px;
-}
-.dot {
-    height: 10px;
-    width: 10px;
-    background-color:green;
-    border-radius: 50%;
-    display: inline-block;
-}
-#button{
-	margin-bottom: 10px;
 }
 </style>
 
@@ -100,7 +88,7 @@ a{
 		</script>
 	<nav class="navbar navbar-dark bg-primary">
 		<div class="container-fluid text-center">
-			    <span id="logout"><a href="/logout">logout</a></span>
+			    <a href="/logout">logout</a>
 				<span id="username"></span>
 			</a>
 		</div>
@@ -111,7 +99,7 @@ a{
 					<div id="allusers"></div>
 				</div>
 			</div>
-		
+		  
 	
 	<div id="msg_head"></div>
 
@@ -153,7 +141,7 @@ a{
 					var str=' ';
 					for(var i=0 ;i<data.length;i++)
 					{
-						str+='<span class="dot"></span><button id="button" name="username" value="'+data[i]+'" >'+ data[i] +'</button>&nbsp'+'</br>'
+						str+='<button id="button" name="username" value="'+data[i]+'" >'+ data[i] +'</button>&nbsp'
 						
 					}
 					$allusers.html(str);  
@@ -162,7 +150,7 @@ a{
 						 friend= $(this).val();
 						 console.log("-->"+friend)
 						 $msg_head.append('<div id="msg_head1">'+friend+'</div>');
-						 $msg_head.append("<div id=msgBox> <div id='msg_a'></div> </div><input type=text id=msg style=width:500px/> <input type=submit id=send value=send />");
+						 $msg_head.append("<div id=msgBox></div><input type=text id=msg style=width:500px/> <input type=submit id=send value=send />");
 						 
 						 $("#send").click(function () {
                            //send to the server with person name and message
@@ -174,7 +162,7 @@ a{
 						  });
 						  socket.on("serverMsg", function (data) {
              							   //Append the message from the server to the message box
-              					  $("#msg_a").append("<strong>" + data.name + 
+              					  $("#msgBox").append("<strong>" + data.name + 
               					  "</strong>: " + data.msg + "<br/>");
            					 });
 						 

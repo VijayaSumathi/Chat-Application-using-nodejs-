@@ -3,13 +3,23 @@
 <head>
 
     <title>
-
         Chat with socket.io+nodejs+express
-
     </title>
-
     <style>
-
+		
+.bg-primary {
+    color: #fff;
+    background-color: #337ab7;
+}#logout{
+		float:right;
+		margin-right:20px;
+	}
+	.navbar {
+    position: relative;
+    min-height: 50px;
+    margin-bottom: 20px;
+    border: 1px solid transparent;
+}
         body{
 
             background-color:lightgray;
@@ -23,17 +33,85 @@
 		 width: 400px;
 		  border: 1px solid blue;
 		}
-
-
+		.chat_body{
+	background:white;
+	height:400px;
+	padding:5px 0px;
+}.chat_head{
+	background:#3498db;
+	color:white;
+	padding:2px;
+	cursor:pointer;
+	
+}#userlist{
+	     float:right;
+	     width: 200px;
+            text-align:center;
+            background-color:whitesmoke;
+                position: relative;
+                height: 100%;
+                right: 0px;
+                top: 0px;
+                padding-top: 10px;
+                padding-bottom: 10px;
+                border: 1px solid rgba(29, 49, 91, .3);
+				margin-top: 30px;
+                }
+				#msgBox{
+					background:white;
+	border-radius:5px 5px 0px 0px;
+				}
+				#msg_head1{
+					
+	background:#3498db;
+	color:white;
+	padding:10px;
+	font-weight:bold;
+	cursor:pointer;
+	border-radius:5px 5px 0px 0px;
+margin-right: 778px;
+				}.close{
+	float:right;
+	cursor:pointer;
+}
+a{
+	display: block;
+	color: white;
+}#msg{
+	width:354px;
+}
+.dot {
+    height: 10px;
+    width: 10px;
+    background-color:green;
+    border-radius: 50%;
+    display: inline-block;
+}
+#button{
+	margin-bottom: 10px;
+}
 </style>
 
  
 </head>
 <body> 
-		<p id="username"></p> <br/>
-	<p>list of all other users are</p>
-		<div id="allusers"></div>
-	<br/><br/>
+	<script>
+		   
+		</script>
+	<nav class="navbar navbar-dark bg-primary">
+		<div class="container-fluid text-center">
+			    <span id="logout"><a href="/logout">logout</a></span>
+				<span id="username"></span>
+			</a>
+		</div>
+	</nav><br/>
+	<div id="userlist">
+				<div class="chat_head"><label><strong><h2>online users</h2></strong></label><br/></div>
+				<div class="chat_body">
+					<div id="allusers"></div>
+				</div>
+			</div>
+		
 	
 	<div id="msg_head"></div>
 
@@ -62,7 +140,7 @@
 			socket.on('handle',function(data){
 			  console.log(data);
 			  username=data;
-			  $username.append('<p>'+data+'</p>');
+			  $username.append('<p>'+"welcome"+" "+data+'</p>');
 			  socket.emit('login',data)
 			  
 			});         
@@ -75,7 +153,7 @@
 					var str=' ';
 					for(var i=0 ;i<data.length;i++)
 					{
-						str+='<button id="button" name="username" value="'+data[i]+'" >'+ data[i] +'</button>&nbsp'
+						str+='<span class="dot"></span><button id="button" name="username" value="'+data[i]+'" >'+ data[i] +'</button>&nbsp'+'</br>'
 						
 					}
 					$allusers.html(str);  
@@ -83,8 +161,8 @@
 					$('button').click(function () {
 						 friend= $(this).val();
 						 console.log("-->"+friend)
-						 $msg_head.append('<p>'+friend+'</p>');
-						 $msg_head.append("<div id=msgBox></div><input type=text id=msg style=width:300px/> <input type=submit id=send value=send />");
+						 $msg_head.append('<div id="msg_head1">'+friend+'</div>');
+						 $msg_head.append("<div id=msgBox> <div id='msg_a'></div> </div><input type=text id=msg style=width:500px/> <input type=submit id=send value=send />");
 						 
 						 $("#send").click(function () {
                            //send to the server with person name and message
@@ -96,7 +174,7 @@
 						  });
 						  socket.on("serverMsg", function (data) {
              							   //Append the message from the server to the message box
-              					  $("#msgBox").append("<strong>" + data.name + 
+              					  $("#msg_a").append("<strong>" + data.name + 
               					  "</strong>: " + data.msg + "<br/>");
            					 });
 						 

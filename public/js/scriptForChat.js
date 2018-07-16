@@ -83,7 +83,7 @@ $ (function(){
 
   }); 
 
-  //event for setting roomId.
+ 
   socket.on('set-room',function(room){
    
     $('#messages').empty();

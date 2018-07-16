@@ -1,178 +1,62 @@
-<html>
-
+<!DOCTYPE html>
+<html lang="en">
 <head>
-
-    <title>
-        Chat with socket.io+nodejs+express
-    </title>
-    <style>
-		#username{
-		float:right;
-		margin-right:20px;
-	}
-.bg-primary {
-    color: #fff;
-    background-color: #337ab7;
-}
-	.navbar {
-    position: relative;
-    min-height: 50px;
-    margin-bottom: 20px;
-    border: 1px solid transparent;
-}
-        body{
-
-            background-color:lightgray;
-
-        }
-		#contentwrap{
-			display: none;
-		}
-		#msgBox{
-		height: 200px;
-		 width: 400px;
-		  border: 1px solid blue;
-		}
-		.chat_body{
-	background:white;
-	height:400px;
-	padding:5px 0px;
-}.chat_head{
-	background:#3498db;
-	color:white;
-	padding:2px;
-	cursor:pointer;
-	
-}#userlist{
-	     float:right;
-	     width: 200px;
-            text-align:center;
-            background-color:whitesmoke;
-                position: relative;
-                height: 100%;
-                right: 0px;
-                top: 0px;
-                padding-top: 10px;
-                padding-bottom: 10px;
-                border: 1px solid rgba(29, 49, 91, .3);
-				margin-top: 30px;
-                }
-				#msgBox{
-					background:white;
-	border-radius:5px 5px 0px 0px;
-				}
-				#msg_head1{
-					
-	background:#3498db;
-	color:white;
-	padding:10px;
-	font-weight:bold;
-	cursor:pointer;
-	border-radius:5px 5px 0px 0px;
-margin-right: 778px;
-				}.close{
-	float:right;
-	cursor:pointer;
-}
-a{
-	display: block;
-	color: white;
-}
-</style>
-
- 
+  <% include ./parts/head.ejs %>
 </head>
-<body> 
-	<script>
-		   
-		</script>
-	<nav class="navbar navbar-dark bg-primary">
-		<div class="container-fluid text-center">
-			    <a href="/logout">logout</a>
-				<span id="username"></span>
-			</a>
-		</div>
-	</nav><br/>
-	<div id="userlist">
-				<div class="chat_head"><label><strong><h2>online users</h2></strong></label><br/></div>
-				<div class="chat_body">
-					<div id="allusers"></div>
-				</div>
-			</div>
-		  
-	
-	<div id="msg_head"></div>
+<body>
+  <% include ./parts/header.ejs %>
+  <div class="panel panel-primary" style="margin-left:10%;margin-right:10%;">
+<div class="panel-heading">
+  <h3>Wel Come to  Chat App</h3>
+  <div > <ul id="hell0" class="list-unstyled">
 
-    <p id="hello"></p>
+  </ul> </div>
+</div></div>
+<hr><br>
+  <main>
+    <div class="container-fluid">
+      <input type="hidden" id="user" value="<%= user.username %>"/>
+      <div class="row">
+        <div class="col-sm-4">
+          <div class="panel panel-primary">
+            <div class="panel-heading">
+              <h2>Chat Options</h2></div>
 
-		    <br/>
-		
-				<div id="status"></div>
-	<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/2.1.4/jquery.min.js"></script>
-	<script src="/socket.io/socket.io.js"></script>
-	<script>
-		$(function(){//shorthand for document.ready
-			var socket=io.connect();
-			var $username=$('#username');
-            var username;
+            <div class="panel-body" id="scrl1">
+              <h4 class="boxF">For Group Chat Click on Group Button and for One-to-One chat click on Username</h4>
+              <ul id="list" ></ul>
+            </div>
+            <div class="panel-footer">
+              <p id="typing"  class="btn btn-danger btn-block btn-lg"></p>
+            </div>
+          </div>
+        </div>
+        <div class="col-sm-8">
+          <div class="panel panel-primary">
+            <div class="panel-heading">
+              <h4 id="frndName">Chat Room</h4>
+            </div>
+            <div class="panel-body" id="scrl2">
+              <p id="loading">Loading..... Please Wait.</p>
+              <p id="noChat">No More Chats To Display.....</p>
+              <p id="initMsg">!!...Click On User Or Group Button To Start Chat...!!</p>
+              <ul id="messages"></ul>
+            </div>
+            <div class="panel-footer">
+              <form id="chatForm" action="">
+                <input id="myMsg" class="input-box-send" autocomplete="off" placeholder="Write Message Here.." />
+                <button id="sendBtn" class="btn btn-success btn-lg"><span class="glyphicon glyphicon-send"></span> <b>Send</b></button>
+              </form>
+            </div>
+          </div>
+        </div>
 
-			var $msg_head=$('#msg_head');
-			var $nickerror=$('#nicknameerror');
-			var $hello=$('#hello');
-			var $messageform=$('#sendmessage');
-			var $messageip=$('#message');
-			var $chat=$('#chat');			
-			var $allusers=$('#allusers');
-			var $button=$('#button');
-			var friend;			
-			socket.on('handle',function(data){
-			  console.log(data);
-			  username=data;
-			  $username.append('<p>'+"welcome"+" "+data+'</p>');
-			  socket.emit('login',data)
-			  
-			});         
-            
-             
-				
-			socket.on('friend_list', function(data) {
-					console.log("Friends list : "+data);
-			
-					var str=' ';
-					for(var i=0 ;i<data.length;i++)
-					{
-						str+='<button id="button" name="username" value="'+data[i]+'" >'+ data[i] +'</button>&nbsp'
-						
-					}
-					$allusers.html(str);  
-					
-					$('button').click(function () {
-						 friend= $(this).val();
-						 console.log("-->"+friend)
-						 $msg_head.append('<div id="msg_head1">'+friend+'</div>');
-						 $msg_head.append("<div id=msgBox></div><input type=text id=msg style=width:500px/> <input type=submit id=send value=send />");
-						 
-						 $("#send").click(function () {
-                           //send to the server with person name and message
-                           socket.emit("clientMsg", {
-					           "name": username,
-								"msg": $("#msg").val(),
-								"friend":friend
-                            });
-						  });
-						  socket.on("serverMsg", function (data) {
-             							   //Append the message from the server to the message box
-              					  $("#msgBox").append("<strong>" + data.name + 
-              					  "</strong>: " + data.msg + "<br/>");
-           					 });
-						 
-						});                  
-										              
-			});
-		   
-		  
+      </div>
+    </div>
+  </main>
 
-		});
-	</script>
+  <% include ./parts/footer.ejs %>
+
+  <script src="/js/scriptForChat.js"></script>
 </body>
 </html>

@@ -221,19 +221,20 @@ router.post('/login',function(req,res){
             }
           }
         }
-        //for popping connection message.
+        
         ioChat.emit('onlineStack', userStack);
-      } //end of sendUserStack function.
+      } 
 
-    }); //end of set-user-data event.
+    });
 
-    //setting room.
+   
     socket.on('set-room', function(room) {
-      //leaving room.
+     
       socket.leave(socket.room);
-      //getting room data.
+    
       eventEmitter.emit('get-room-data', room);
-      //setting room and join.
+
+  
       setRoom = function(roomId) {
         socket.room = roomId;
         console.log("roomId : " + socket.room);
@@ -241,14 +242,14 @@ router.post('/login',function(req,res){
         ioChat.to(userSocket[socket.username]).emit('set-room', socket.room);
       };
 
-    }); //end of set-room event.
+    }); 
 
-    //emits event to read old-chats-init from database.
+  
     socket.on('old-chats-init', function(data) {
       eventEmitter.emit('read-chat', data);
     });
 
-    //emits event to read old chats from database.
+ 
     socket.on('old-chats', function(data) {
       eventEmitter.emit('read-chat', data);
     });
@@ -268,7 +269,7 @@ router.post('/login',function(req,res){
 
     //for showing chats.
     socket.on('chat-msg', function(data) {
-      //emits event to save chat to database.
+     
       eventEmitter.emit('save-chat', {
         msgFrom: socket.username,
         msgTo: data.msgTo,
@@ -276,7 +277,8 @@ router.post('/login',function(req,res){
         room: socket.room,
         date: data.date
       });
-      //emits event to send chat msg to all clients.
+      
+
       ioChat.to(socket.room).emit('chat-msg', {
         msgFrom: socket.username,
         msg: data.msg,
@@ -284,7 +286,7 @@ router.post('/login',function(req,res){
       });
     });
 
-    //for popping disconnection message.
+   
     socket.on('disconnect', function() {
 
       console.log(socket.username+ "  logged out");
@@ -300,14 +302,10 @@ router.post('/login',function(req,res){
       ioChat.emit('onlineStack', userStack);
     }); //end of disconnect event.
 
-  }); //end of io.on(connection).
-  //end of socket.io code for chat feature.
-
-  //database operations are kept outside of socket.io code.
-  //saving chats to database.
+  }); 
   eventEmitter.on('save-chat', function(data) {
 
-    // var today = Date.now();
+   
 
     var newChat = new chatModel({
 
@@ -326,11 +324,11 @@ router.post('/login',function(req,res){
         console.log("Chat Is Not Saved.");
       } else {
         console.log("Chat Saved.");
-        //console.log(result);
+      
       }
     });
 
-  }); //end of saving chat.
+  }); 
 
   //reading chat from database.
   eventEmitter.on('read-chat', function(data) {
@@ -345,7 +343,7 @@ router.post('/login',function(req,res){
         if (err) {
           console.log("Error : " + err);
         } else {
-          //calling function which emits event to client to show chats.
+        
           oldChats(result, data.username, data.room);
         }
       });
@@ -403,21 +401,19 @@ router.post('/login',function(req,res){
             } else if (newResult == "" || newResult == undefined || newResult == null) {
               console.log("Some Error Occured During Room Creation.");
             } else {
-              setRoom(newResult._id); //calling setRoom function.
+              setRoom(newResult._id); 
             }
-          }); //end of saving room.
+          }); 
 
         } else {
+          console.log("result of set room"+result)
           var jresult = JSON.parse(JSON.stringify(result));
-          setRoom(jresult[0]._id); //calling setRoom function.
+          setRoom(jresult[0]._id); 
         }
-      } //end of else.
-    }); //end of find room.
-  }); //end of get-room-data listener.
-  //end of database operations for chat feature.
-
-  //
-
+      } 
+    });
+  }); 
+  
    /*                */
 
 

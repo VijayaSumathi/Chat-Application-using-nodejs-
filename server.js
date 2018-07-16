@@ -15,25 +15,15 @@ var methodOverride = require('method-override');
 var shortid = require("shortid");
 var events = require('events');
 var _ = require('lodash');
-
-
 var eventEmitter = new events.EventEmitter();
-
-
-//var login = require('./models/login');
-//var messages = require('./models/messages');
 var path = require('path');
 var bodyParser = require('body-parser');
-//var url  = require('url');
 router.use(bodyParser.urlencoded({ extended: false }))
-
 // parse application/json
 router.use(bodyParser.json())
-
  // render engine
 router.set('views', path.join(__dirname, 'views'));
 router.set('view engine', 'ejs');
-
 http.listen(3000,function(){
     console.log("Node Server is setup and it is listening on 3000");    
 });
@@ -59,7 +49,8 @@ mongoose.connect('mongodb://localhost/dbappchat')
     });
 
 router.use(sessionInit);
-    router.all('/user/*', function(req, res, next) {
+
+  router.all('/user/*', function(req, res, next) {
 
         if (req.session && req.session.user) {
             return next();
@@ -77,27 +68,7 @@ router.use(sessionInit);
   
     });
   
-router.get('/user/home',function(req,res){
-    register.findOne({"name":req.session.user.name},function(err,user){    
-     if (!user) {
-         // if the user isn't found in the DB, reset the session info and
-         // redirect the user to the login page
-         req.session.reset();
-         return  res.render('login');
 
-     } else {
-         console.log("user authentication successful");
-         // expose the user to the template
-         req.user = user;
-         // delete the password from the session
-         req.session.user = user; //refresh the session value
-         res.locals.user = user;
-         // render the approve page
-         return res.render('chat');
-     }
- });
-
-});
 
 
 
@@ -120,7 +91,7 @@ router.get('/registration',function(req,res){
 router.post('/register',function(req,res){ 
     var id = shortid.generate();
 
-      console.log(req.body);
+     // console.log(req.body);
       var newUser = new userModel({
         userId : id,
         username : req.body.username,
